@@ -1,14 +1,11 @@
-> **Warning**
-> This GitHub action it is not recommended for production environments. It's only a PoC to test OpenAI.
+# openai-for-prs
 
-# openai-security-review
-
-GitHub action to get security recommendations from OpenAI.
+GitHub action to get PR recommendations from OpenAI.
 
 - The action is triggered when a PR is opened or updated.
-- The action retrieves the files with changes in the PR and passes them to the OpenAI API.
-- The OpenAI API analyzes the code and generates a security recommendation.
-- The action adds a comment in the PR with the security recommendation from OpenAI.
+- The action retrieves the PR comments and title and passes them to the OpenAI API.
+- The OpenAI API analyzes the code and generates a PR suggestions.
+- The action adds a comment in the PR with the recommendations from OpenAI.
 
 ## Usage
 ### Inputs
@@ -26,21 +23,21 @@ on:
 jobs:
   get-recommendation:
     runs-on: ubuntu-latest
-    name: Get a recommendation from OpenAI
+    name: Get a PR recommendation from OpenAI
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 2
       - name: Get AI comment
-        uses: adanalvarez/openai-security-review@v0
+        uses: WesternHemlock/openai-for-prs@v0
         with:
           openai-token: ${{ secrets.OPENAI_TOKEN }}
           tokens: 2500
           max-files: 5
 ```
 > **Note**
-> You must use `actions/checkout` before the openai-security-review step. If you use `actions/checkout@v2`, you must specify a commit depth other than the default, which is 1—using a fetch-depth of '0' clones the entire history. If you want to do a more efficient clone, use '2', which is not guaranteed to work with pull requests.
+> You must use `actions/checkout` before the openai-for-prs step. If you use `actions/checkout@v2`, you must specify a commit depth other than the default, which is 1—using a fetch-depth of '0' clones the entire history. If you want to do a more efficient clone, use '2', which is not guaranteed to work with pull requests.
 
 ### Example PR comment
 ![PR comment](comment.PNG)
