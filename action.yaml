@@ -28,7 +28,7 @@ runs:
           echo "OPENAI_API_KEY=${{ inputs.openai-token }}" >> $GITHUB_ENV
       shell: bash
     - name: Get OpenAI recommendation
-      run: python $GITHUB_ACTION_PATH/src/gitsecurityai.py
+      run: python $GITHUB_ACTION_PATH/src/openaiforprs.py
       shell: bash
     - name: Comment PR
       uses: thollander/actions-comment-pull-request@4159e62bc85fec21089efb305e83a9e7113074e8
