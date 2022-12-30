@@ -15,6 +15,12 @@ inputs:
     description: 'Maximum number of files to analyze'
     required: false
     default: 5
+  pr-title:  
+    description: 'The title of the pr.'
+    required: true
+  pr-author:  
+    description: 'The username of the person that wrote the pr.'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -25,6 +31,8 @@ runs:
       run: |
           echo "MAX_FILES=${{ inputs.max-files }}" >> $GITHUB_ENV
           echo "TOKENS=${{ inputs.tokens }}" >> $GITHUB_ENV
+          echo "PR_TITLE=${{ inputs.pr-title }}" >> $GITHUB_ENV
+          echo "PR_AUTHOR=${{ inputs.pr-author }}" >> $GITHUB_ENV
           echo "OPENAI_API_KEY=${{ inputs.openai-token }}" >> $GITHUB_ENV
       shell: bash
     - name: Get OpenAI recommendation
