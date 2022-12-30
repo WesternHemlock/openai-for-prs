@@ -1,5 +1,5 @@
 name: 'OpenAI for PRs'
-description: 'A GitHub Action that reviews a pull request and comments with suggestions from OpenAI's GPT-3.'
+description: 'A GitHub Action that reviews a pull request and comments with suggestions from OpenAI GPT-3.'
 branding:
   icon: 'git-pull-request'
   color: 'blue'
