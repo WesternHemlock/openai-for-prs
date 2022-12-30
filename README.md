@@ -15,7 +15,7 @@ GitHub action to get PR recommendations from OpenAI.
 
 ### Example workflow
 ```
-name: Get OpenAI recommendation
+name: Get PR recommendations
 on:
   pull_request:
     branches: [ "main" ]
@@ -28,11 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Get AI comment
-        uses: WesternHemlock/openai-for-prs@v0
+        uses: WesternHemlock/openai-for-prs@main
         with:
-          openai-token: ${{ secrets.OPENAI_TOKEN }}
+          openai-token: ${{ secrets.OPENAI_API_KEY }}
           tokens: 2500
           max-files: 5
 ```
