@@ -3,8 +3,37 @@ import openai
 import os
 import json
 
-def check_code_vulnerabilities(code, tokens):
-    prompt = f"Tell me if there is a security vulnerability in the following code: '{code}' if there is a vulnerability in what line or lines and what you recommend to solve the problem with an example. Also, make the answer in Markdown format as if it was a GitHub comment"
+def evaulate_pr_title(pr_title, author, commit_messages, max_tokens = 500):
+    prompt = f"""
+Evaluate the Pull Request Title below the three dashes ("---") to see if the Pull Request Title is compliant with all of the rules below. If the title is compliant, respond in markdown format and thank the author for picking a compliant pull request title; ignoring the template.  If the input is not compliant, respond as a GitHub comment with the template below, replacing the text in square brackets, to help the user.   When processing the template,  ignore any emoji tags in the template itself.  Assume this is the start of a conversation and none of this prompt is known to the person you are talking to.  
+
+Rules:
+1. The pull request title must be Title Case, and in the format "<EMOJI> <SHORT_DESCRIPTION>"
+2. EMOJI must be an emoji OR a Github emoji tag
+3. The SHORT_DESCRIPTION shall start with a verb.
+4. The SHORT_DESCRIPTION should be applicable to the Commits in the input, but we should ignore this rule if the message is otherwise compliant.
+5. The EMOJI should be relevant to the existing PR title, or the Commits in the input, but if the user did provide an emoji we should assume it is valid.
+6. The VERB and SHORT_DESCRIPTION must form a grammatically correct phrase.
+7. The SHORT_DESCIPTION should be at least 5 words.
+
+Template:
+[if the title doesn't follow the rules, tell the person why, here]
+
+[In the options below, use the inputs to try to form a compliant message, especially the original pull request title, if possible.]
+
+# Pick a compliant git message by clicking the applicable reaction icon below:
+1. :heart: -> *[insert best option here]*
+2. :horray: -> *[insert 2nd best option here]*
+3. :rocket: -> *[insert 3rd option here]*
+4. _OR, provide your own by editing the PR._ :eyes:
+
+_Don't like these responses?  Downvote this comment._
+---
+Author: {author}
+Pull Request Title: "{pr_title}"
+Commits:
+{commit_messages}
+"""
     try:
         result = openai.Completion.create(
                     engine="text-davinci-003",
@@ -15,10 +44,8 @@ def check_code_vulnerabilities(code, tokens):
                     prompt=prompt,
                     temperature=0.2
                     )
-        if result["choices"][0]["text"].startswith("\n\nNo"):
-            return "No vulnerabilities detected"
-        else:
-            return result["choices"][0]["text"]
+       
+        return result["choices"][0]["text"]
     except Exception as e:
         return f"An error occurred: {e}"
     
@@ -50,22 +77,16 @@ def get_modified_files():
 def run():  # sourcery skip: avoid-builtin-shadow
     max = os.environ.get("MAX_FILES")
     tokens = os.environ.get("TOKENS")
-
-    comment = "## Suggestions from the AI"
-
-    files = get_modified_files()
-    print(files)
-    if len(files) > int(max):
-        comment = f"{len(files)} files were modified. Limit {max}."
-    else:
-        for file in files:
-            try:
-                with open(file, 'r') as f:
-                    code = f.read()
-                iasuggestion = check_code_vulnerabilities(code, tokens)
-            except Exception as e:
-                print(f"An error occurred: {e}")
-            comment = f"{comment}\n### {file}\n{iasuggestion}\n"
+    pr_title = os.environ.get("PR_TITLE")
+    pr_author = os.environ.get("PR_AUTHOR")
+    
+    commit_messages = ""
+    
+    try:
+        comment = evaulate_pr_title(pr_title, pr_author, commit_messages, tokens)
+    except Exception as e:
+        comment = f"An error occurred: {e}"
+        
     with open("comment.md", "w") as f:
         f.write(comment)
 
